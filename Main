@@ -1,0 +1,155 @@
+#include <iostream>
+#include <vector>
+#include <bits/stdc++.h>
+
+char currentMarker;
+int currentPlayer;
+char board[3][3] = {{'1','2','3'}, {'4','5','6'}, {'7','8','9'}};
+
+void drawBoard() {
+  std::cout << " " << board[0][0] << " | " << board[0][1] << " | " << board[0][2] << std::endl;
+  std::cout << "-----------\n";
+  std::cout << " " << board[1][0] << " | " << board[1][1] << " | " << board[1][2] << std::endl;
+  std::cout << "-----------\n";
+  std::cout << " " << board[2][0] << " | " << board[2][1] << " | " << board[2][2] << std::endl;
+}
+
+void placeMarker(int slot) {
+  int row = slot / 3;
+  int col;
+  
+  if(slot % 3 == 0) {
+    row = row - 1;
+    col = 2;
+  }
+  else{
+    col = (slot % 3) - 1;
+  }
+  board[row][col] = currentMarker;
+}
+
+int winner(){
+  for(int i = 0; i < 3; i++){
+    //checking rows
+    if(board[i][0] == board[i][1] && board[i][1] == board[i][2]) 
+      return currentPlayer;
+    //checking columns
+    if(board[0][i] == board[1][i] && board[1][i] == board[2][i])
+      return currentPlayer;
+  }
+  //checking diagonals
+  if(board[0][0] == board[1][1] && board[1][1] == board[2][2])
+    return currentPlayer;
+  if(board[0][2] == board[1][1] && board[1][1] == board[2][0])
+    return currentPlayer;
+
+  return 0;
+}
+
+void typetext(const std::string& text) {
+  for(int i = 0; i < text.length(); i++){
+    std::cout << text[i] << std::flush;
+    usleep(60000);
+    
+  }
+}
+
+void game(){
+  int player_won;
+  //available slot numbers
+  std::vector<int> vec = {1, 2, 3, 4, 5, 6 ,7 ,8, 9};
+  //player 2 goes first
+  currentPlayer = 1;
+  currentMarker = 'X';
+  
+  typetext("TIC-TAC-TOE\n\n");
+  sleep(1);
+  typetext("How To Play:\n"); 
+  sleep(1);
+  typetext("Your marker is 'X'. ");
+  sleep(1);
+  typetext("To place your marker, ");
+  sleep(1);
+  typetext("enter the slot number (1 - 9) you would like to place your 'X'.\n"); 
+  sleep(1);
+  typetext("The first to get three in a row horizontally, vertically, or diagonally is the winner!\n\n");
+  sleep(3);
+  drawBoard();
+  
+  for(int i = 0; i < 9; i++) {
+    std::cout << "\n";
+    sleep(2);
+    typetext("It's your turn. Enter the slot number you would like to place your marker: ");
+    //user inputs slot number
+    int slot;
+    std::cin >> slot;
+    //slot number is replaced with 'X'
+    //updated board is drawn
+    placeMarker(slot);
+    std::cout << "\n";
+    sleep(1);
+    drawBoard();
+    //player_won equals either 0 or 1
+    //0 = no one has won yet
+    //1 = player 1 has won
+    player_won = winner();
+    if(player_won == 1){
+      typetext("CONGRATS! YOU WON!");
+      break;
+    }
+    //available slot numbers are updated in vector
+    std::vector<int>::iterator it;
+    it = remove(vec.begin(), vec.end(), slot);
+    i++;
+    
+    //currentPlayer is updated to player 2
+    //marker is updated to 'O'
+    currentPlayer = 2;
+    currentMarker = 'O';
+    
+    std::cout << "\n";
+    sleep(2);
+    typetext("It's player 2's turn...");
+    sleep(3);
+    while(currentMarker == 'O'){
+      //generate a random number 1 - 9
+      int random = 1 + (rand() % 9);
+      //compare available slot numbers to randomly generated number
+      for(auto j = vec.begin(); j != vec.end(); j++){
+        //if available slot number = randomly generated number:
+        if(*j == random) {
+          //remove that number from list of available number slots
+          it = remove(vec.begin(), vec.end(), random);
+          slot = random;
+          //place 'O' on slot number
+          placeMarker(slot);
+          //change 'O' to 'X'
+          currentMarker = 'X';
+          break;
+        }
+      }
+    }
+    std::cout << "\n\n";
+    //draw updated board
+    drawBoard();
+    //player_won = either 0 or 2
+    //0 = no one has won yet
+    //2 = player 2 has won
+    sleep(1);
+    player_won = winner();
+    if(player_won == 2){
+      typetext(" :( YOU LOST!!!");
+      break;
+    }
+    //currentPlayer is updated to player 1
+    currentPlayer = 1;
+    sleep(1);
+   
+  }
+}
+
+int main() {
+
+  game();
+  
+}
